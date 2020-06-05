@@ -7,7 +7,7 @@ Enable the incredible Intel AI denoiser in Blender **in a single click**.
 
 ### Requirements
 
-Built and tested with Blender 2.82, but should work with any new version. Please report any issues above.
+Built and tested with Blender 2.82, but should work with any newer version too. Please report any issues above.
 
 ### How to install
 
