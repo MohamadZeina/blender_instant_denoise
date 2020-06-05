@@ -39,8 +39,25 @@ class InstantDenoise(bpy.types.Operator):
         # Set up new nodes
         render_layers_node = tree.nodes.new(type='CompositorNodeRLayers')
         render_layers_node.location = 0, 0
+        denoise_node = tree.nodes.new(type="CompositorNodeDenoise")
+        denoise_node.location = 300, 0
         composite_node = tree.nodes.new(type='CompositorNodeComposite')
-        composite_node.location = 500, 0
+        composite_node.location = 600, 0
+
+        # Link new nodes        
+        tree.links.new(
+        	render_layers_node.outputs['Noisy Image'], 
+        	denoise_node.inputs['Image'])
+        tree.links.new(
+        	render_layers_node.outputs['Denoising Albedo'], 
+        	denoise_node.inputs['Albedo'])
+        tree.links.new(
+        	render_layers_node.outputs['Denoising Normal'], 
+        	denoise_node.inputs['Normal'])
+
+        tree.links.new(
+        	denoise_node.outputs['Image'], 
+        	composite_node.inputs['Image'])
 
         return {'FINISHED'}
 
