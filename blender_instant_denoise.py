@@ -26,6 +26,13 @@ class InstantDenoise(bpy.types.Operator):
 
         scene = context.scene
 
+        # Clear any existing nodes
+        scene.use_nodes = True
+        tree = scene.node_tree
+
+        for node in tree.nodes:
+        	tree.nodes.remove(node)
+
         return {'FINISHED'}
 
 
