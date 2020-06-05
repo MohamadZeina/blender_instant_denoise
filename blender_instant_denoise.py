@@ -28,13 +28,19 @@ class InstantDenoise(bpy.types.Operator):
 
         # Initialise important settings
         scene.use_nodes = True
-        scene.denoising_store_passes = True
+        context.view_layer.cycles.denoising_store_passes = True
 
         # Clear any existing nodes
         tree = scene.node_tree
 
         for node in tree.nodes:
         	tree.nodes.remove(node)
+
+        # Set up new nodes
+        render_layers_node = tree.nodes.new(type='CompositorNodeRLayers')
+        render_layers_node.location = 0, 0
+        composite_node = tree.nodes.new(type='CompositorNodeComposite')
+        composite_node.location = 500, 0
 
         return {'FINISHED'}
 
