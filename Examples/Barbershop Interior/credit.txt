@@ -1,0 +1,5 @@
+CC-BY 
+
+Available from Blender Cloud (http://cloud.blender.org)
+
+Downloaded from https://www.blender.org/download/demo-files/
