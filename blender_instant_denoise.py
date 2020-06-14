@@ -121,7 +121,7 @@ class InstantAdvancedDenoise(bpy.types.Operator):
         return multiply_node
 
     def denoise(self, input_socket_one, input_socket_two, 
-                input_socket_three, location_offset=[300, 0]):
+        input_socket_three, location_offset=[300, 0]):
         """Input sockets are required, because this affects a node 
         with a large number of output sockets"""
 
@@ -183,7 +183,7 @@ class InstantAdvancedDenoise(bpy.types.Operator):
         # Multiply the result of adding direct and indirect, with colour
         multiply_node = self.multiply(add_node, denoise_nodes["Col"])
 
-        return
+        return multiply_node
 
     def initialise_settings(self):
 
@@ -232,24 +232,18 @@ class InstantAdvancedDenoise(bpy.types.Operator):
         self.composite_node.location = 2000, 0
 
         # Set up other nodes
-        self.denoise_pass_type("Diff")
-        self.denoise_pass_type("Gloss")
-        self.denoise_pass_type("Trans")
+        diffuse_multiply_node = self.denoise_pass_type("Diff")
+        glossy_multiply_node = self.denoise_pass_type("Gloss")
+        transmission_multiply_node = self.denoise_pass_type("Trans")
 
-        # Link new nodes        
-        # tree.links.new(
-        #     render_layers_node.outputs['Noisy Image'], 
-        #     denoise_node.inputs['Image'])
-        # tree.links.new(
-        #     render_layers_node.outputs['Denoising Albedo'], 
-        #     denoise_node.inputs['Albedo'])
-        # tree.links.new(
-        #     render_layers_node.outputs['Denoising Normal'], 
-        #     denoise_node.inputs['Normal'])
+        diffuse_and_glossy = self.add(
+            diffuse_multiply_node, glossy_multiply_node)
+        final_addition = self.add(
+            diffuse_and_glossy, transmission_multiply_node)
 
-        # tree.links.new(
-        #     denoise_node.outputs['Image'], 
-        #     composite_node.inputs['Image'])
+        tree.links.new(
+            final_addition.outputs[0], 
+            self.composite_node.inputs['Image'])
 
         return {'FINISHED'}
 
