@@ -20,3 +20,4 @@ After install, you should see a new panel in the render properties tab. Simply c
 
 ### Acknowledgements 
 Coffee model available under a CC-0 licence [here](https://3dmodelhaven.com/model/?c=appliances&m=CoffeeCart_01).
+"Advanced Denoise" feature based on: https://www.youtube.com/watch?v=sLLndwUPUiw
