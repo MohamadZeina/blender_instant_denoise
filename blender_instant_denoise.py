@@ -102,7 +102,7 @@ class InstantAdvancedDenoise(bpy.types.Operator):
 
         return multiply_node
 
-    def denoise(self, input_node, input_socket_one, input_socket_two, 
+    def denoise(self, input_socket_one, input_socket_two, 
                 input_socket_three):
         """Input sockets are required, because this affects a node 
         with a large number of output sockets"""
@@ -110,9 +110,9 @@ class InstantAdvancedDenoise(bpy.types.Operator):
         tree = self.scene.node_tree
 
         # Get locations of inputs
-        location_one = np.array(input_node.location)
-        location_two = np.array(input_node.location)
-        location_three = np.array(input_node.location)
+        location_one = np.array(self.render_layers_node.location)
+        location_two = np.array(self.render_layers_node.location)
+        location_three = np.array(self.render_layers_node.location)
 
         mean_location = np.mean(
             [location_one, location_two, location_three], axis=0)
@@ -189,24 +189,24 @@ class InstantAdvancedDenoise(bpy.types.Operator):
             tree.nodes.remove(node)
 
         # Set up input and output nodes
-        render_layers_node = tree.nodes.new(type='CompositorNodeRLayers')
-        render_layers_node.location = 0, 0
+        self.render_layers_node = tree.nodes.new(type='CompositorNodeRLayers')
+        self.render_layers_node.location = 0, 0
         # denoise_node = tree.nodes.new(type="CompositorNodeDenoise")
         # denoise_node.location = 300, 0
-        composite_node = tree.nodes.new(type='CompositorNodeComposite')
-        composite_node.location = 2000, 0
+        self.composite_node = tree.nodes.new(type='CompositorNodeComposite')
+        self.composite_node.location = 2000, 0
 
         # Set up other nodes
-        socket_one  = render_layers_node.outputs['DiffDir']
+        socket_one  = self.render_layers_node.outputs['DiffDir']
         # socket_two  = render_layers_node.outputs['DiffInd']
         # socket_three  = render_layers_node.outputs['DiffCol']
-        socket_two  = render_layers_node.outputs['Denoising Normal']
-        socket_three  = render_layers_node.outputs['Denoising Albedo']
-        self.denoise(render_layers_node, socket_one, socket_two, socket_three)
+        socket_two  = self.render_layers_node.outputs['Denoising Normal']
+        socket_three  = self.render_layers_node.outputs['Denoising Albedo']
+        self.denoise(socket_one, socket_two, socket_three)
 
-        socket_one  = render_layers_node.outputs['DiffInd']
-        self.denoise(render_layers_node, socket_one, socket_two, socket_three)
-        
+        socket_one  = self.render_layers_node.outputs['DiffInd']
+        self.denoise(socket_one, socket_two, socket_three)
+
         # Link new nodes        
         # tree.links.new(
         #     render_layers_node.outputs['Noisy Image'], 
