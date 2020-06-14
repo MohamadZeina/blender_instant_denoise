@@ -70,15 +70,33 @@ class InstantAdvancedDenoise(bpy.types.Operator):
 
     def add(input_one, input_two):
 
+    	# Create add node
+
+    	# Move add node to right of input nodes
+
+    	# Build links between input nodes and add node 
+
     	return add_node
 
 	def multiply(input_one, input_two):
 
+		# Create multiply node
+
+    	# Move multiply node to right of input nodes
+
+    	# Build links between input nodes and multiply node 
+
 		return multiply_node
 
-	def denoise(input_one, input_two):
+	def denoise(input_socket_one, input_socket_two, input_socket_three):
 
-		return
+		# Create denoise node
+
+		# Move denoise node to right of the input sockets
+
+		# Build links between input sockets and denoise node
+
+		return denoise_node
 
     def execute(self, context):
         """Called when blender runs this operator"""
