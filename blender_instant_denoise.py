@@ -82,13 +82,15 @@ class InstantAdvancedDenoise(bpy.types.Operator):
         mean_location = np.mean([location_one, location_two], axis=0)
 
         # Create add node
-        add_node = tree.nodeassess.new(type="CompositorNodeMath")
+        add_node = tree.nodes.new(type="CompositorNodeMath")
         add_node.operation = "ADD"
 
         # Move add node to right of input nodes
-        add_node.location = mean_location + [100, 0]
+        add_node.location = mean_location + [300, 0]
 
         # Build links between input nodes and add node 
+        tree.links.new(input_one.outputs[0], add_node.inputs[0])
+        tree.links.new(input_two.outputs[0], add_node.inputs[1])
 
         return add_node
 
@@ -144,6 +146,8 @@ class InstantAdvancedDenoise(bpy.types.Operator):
         light_type_offset = {"Dir": 0, "Ind": -50, "Col": -100}
         pass_type_offset = {"Diff": 0, "Gloss": -300, "Trans": -600}
 
+        denoise_nodes = {}
+
         # For type in light types, call self.denoise
         for i, light_type in enumerate(light_types):
 
@@ -152,9 +156,13 @@ class InstantAdvancedDenoise(bpy.types.Operator):
             socket_three  = self.render_layers_node.outputs["Denoising Albedo"]
             location_offset = [300, light_type_offset[light_type] + pass_type_offset[pass_type]]
 
-            self.denoise(socket_one, socket_two, socket_three, location_offset)
+            denoise_node = self.denoise(
+                socket_one, socket_two, socket_three, location_offset)
+
+            denoise_nodes[light_type] = denoise_node
 
         # Add together direct and indirect
+        add_node = self.add(denoise_nodes["Dir"], denoise_nodes["Ind"])
 
         # Multiply the result of adding direct and indirect, with colour
 
