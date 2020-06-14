@@ -107,9 +107,9 @@ class InstantAdvancedDenoise(bpy.types.Operator):
         mean_location = np.mean([location_one, location_two], axis=0)
 
         # Create multiply node
-        multiply_node = tree.nodes.new(type="CompositorNodeMath")
+        multiply_node = tree.nodes.new(type="CompositorNodeMixRGB")
         multiply_node.hide = True
-        multiply_node.operation = "MULTIPLY"
+        multiply_node.blend_type = "MULTIPLY"
 
         # Move multiply node to right of input nodes
         multiply_node.location = mean_location + [300, 0]
