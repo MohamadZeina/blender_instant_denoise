@@ -35,7 +35,7 @@ class InstantDenoise(bpy.types.Operator):
         tree = scene.node_tree
 
         for node in tree.nodes:
-        	tree.nodes.remove(node)
+            tree.nodes.remove(node)
 
         # Set up new nodes
         render_layers_node = tree.nodes.new(type='CompositorNodeRLayers')
@@ -47,18 +47,18 @@ class InstantDenoise(bpy.types.Operator):
 
         # Link new nodes        
         tree.links.new(
-        	render_layers_node.outputs['Noisy Image'], 
-        	denoise_node.inputs['Image'])
+            render_layers_node.outputs['Noisy Image'], 
+            denoise_node.inputs['Image'])
         tree.links.new(
-        	render_layers_node.outputs['Denoising Albedo'], 
-        	denoise_node.inputs['Albedo'])
+            render_layers_node.outputs['Denoising Albedo'], 
+            denoise_node.inputs['Albedo'])
         tree.links.new(
-        	render_layers_node.outputs['Denoising Normal'], 
-        	denoise_node.inputs['Normal'])
+            render_layers_node.outputs['Denoising Normal'], 
+            denoise_node.inputs['Normal'])
 
         tree.links.new(
-        	denoise_node.outputs['Image'], 
-        	composite_node.inputs['Image'])
+            denoise_node.outputs['Image'], 
+            composite_node.inputs['Image'])
 
         return {'FINISHED'}
 
@@ -70,87 +70,87 @@ class InstantAdvancedDenoise(bpy.types.Operator):
 
     def add(self, input_one, input_two):
 
-    	# Create add node
+        # Create add node
 
-    	# Move add node to right of input nodes
+        # Move add node to right of input nodes
 
-    	# Build links between input nodes and add node 
+        # Build links between input nodes and add node 
 
-    	return add_node
+        return add_node
 
-	def multiply(self, input_one, input_two):
+    def multiply(self, input_one, input_two):
 
-		# Create multiply node
+        # Create multiply node
 
-    	# Move multiply node to right of input nodes
+        # Move multiply node to right of input nodes
 
-    	# Build links between input nodes and multiply node 
+        # Build links between input nodes and multiply node 
 
-		return multiply_node
+        return multiply_node
 
-	def denoise(self, input_socket_one, input_socket_two, 
-				input_socket_three):
+    def denoise(self, input_socket_one, input_socket_two, 
+                input_socket_three):
 
-		# Create denoise node
+        # Create denoise node
 
-		# Move denoise node to right of the input sockets
+        # Move denoise node to right of the input sockets
 
-		# Build links between input sockets and denoise node
+        # Build links between input sockets and denoise node
 
-		return denoise_node
+        return denoise_node
 
-	def denoise_pass_type(self, pass_type):
-		""" Given a pass type (diffuse, glossy or transmission), this 
-		will denoise each light type (direct, indirect and colour), 
-		and combine them appropriately"""
+    def denoise_pass_type(self, pass_type):
+        """ Given a pass type (diffuse, glossy or transmission), this 
+        will denoise each light type (direct, indirect and colour), 
+        and combine them appropriately"""
 
-		light_types = ["direct", "indirect", "color"]
+        light_types = ["direct", "indirect", "color"]
 
-		# For type in light types, call self.denoise
+        # For type in light types, call self.denoise
 
-		# Add together direct and indirect
+        # Add together direct and indirect
 
-		# Multiply the result of adding direct and indirect, with colour
+        # Multiply the result of adding direct and indirect, with colour
 
-		return
+        return
 
-	def initialise_settings(self, context):
+    def initialise_settings(self, context):
 
-		scene = context.scene
+        scene = context.scene
 
-		# Initialise important miscellaneous settings
+        # Initialise important miscellaneous settings
         scene.use_nodes = True
         context.view_layer.cycles.denoising_store_passes = True
 
-		# Enable necessary render layers
-		context.scene.render.use_compositing = True
+        # Enable necessary render layers
+        context.scene.render.use_compositing = True
 
-		# Enable advanced light passes that differentiate this class
-		pass_types = ["diffuse", "glossy", "transmission"]
-		light_types = ["direct", "indirect", "color"]
+        # Enable advanced light passes that differentiate this class
+        pass_types = ["diffuse", "glossy", "transmission"]
+        light_types = ["direct", "indirect", "color"]
 
-		for pass_type in pass_types:
-			for light_type in light_types:
+        for pass_type in pass_types:
+            for light_type in light_types:
 
-				code = ("scene.view_layer['View Layer'].use_pass_" + 
-						pass_type + "_" + light_type + " = True")
+                code = ("scene.view_layers['View Layer'].use_pass_" + 
+                        pass_type + "_" + light_type + " = True")
 
-				exec(code)
+                exec(code)
 
-		return
+        return
 
     def execute(self, context):
         """Called when blender runs this operator"""
 
         scene = context.scene
 
-        initialise_settings()
+        self.initialise_settings(context)
         
         # Clear any existing nodes
         tree = scene.node_tree
 
         for node in tree.nodes:
-        	tree.nodes.remove(node)
+            tree.nodes.remove(node)
 
         # Set up new nodes
         render_layers_node = tree.nodes.new(type='CompositorNodeRLayers')
@@ -162,18 +162,18 @@ class InstantAdvancedDenoise(bpy.types.Operator):
 
         # Link new nodes        
         tree.links.new(
-        	render_layers_node.outputs['Noisy Image'], 
-        	denoise_node.inputs['Image'])
+            render_layers_node.outputs['Noisy Image'], 
+            denoise_node.inputs['Image'])
         tree.links.new(
-        	render_layers_node.outputs['Denoising Albedo'], 
-        	denoise_node.inputs['Albedo'])
+            render_layers_node.outputs['Denoising Albedo'], 
+            denoise_node.inputs['Albedo'])
         tree.links.new(
-        	render_layers_node.outputs['Denoising Normal'], 
-        	denoise_node.inputs['Normal'])
+            render_layers_node.outputs['Denoising Normal'], 
+            denoise_node.inputs['Normal'])
 
         tree.links.new(
-        	denoise_node.outputs['Image'], 
-        	composite_node.inputs['Image'])
+            denoise_node.outputs['Image'], 
+            composite_node.inputs['Image'])
 
         return {'FINISHED'}
 
@@ -197,10 +197,15 @@ class InstantDenoisePanel(bpy.types.Panel):
         row.operator("object.instantdenoise")
 
 
+        row = layout.row()
+        row.operator("object.instantadvanceddenoise")
+
+
 # Register classes
 classes = (
     InstantDenoisePanel,
     InstantDenoise,
+    InstantAdvancedDenoise,
 )
 
 def register():
