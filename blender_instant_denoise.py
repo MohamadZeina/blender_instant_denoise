@@ -14,6 +14,8 @@ bl_info = {
 # Imports
 import bpy
 
+import numpy as np 
+
 # Classes
 class InstantDenoise(bpy.types.Operator):
     """Apply the new Intel denoiser in a single click."""
@@ -69,10 +71,22 @@ class InstantAdvancedDenoise(bpy.types.Operator):
     bl_options = {'REGISTER', 'UNDO'}
 
     def add(self, input_one, input_two):
+        """Expects 2 denoise nodes as "input". These only have a single 
+        output, which is why you have to specify socket"""
+
+        tree = self.scene.node_tree
+
+        # Get locations of inputs
+        location_one = np.array(input_one.location)
+        location_two = np.array(input_two.location)
+        mean_location = np.mean([location_one, location_two])
 
         # Create add node
+        add_node = tree.nodeassess.new(type="CompositorNodeMath")
+        add_node.operation = "ADD"
 
         # Move add node to right of input nodes
+        add_node.location = mean_location + [100, 0]
 
         # Build links between input nodes and add node 
 
@@ -107,6 +121,8 @@ class InstantAdvancedDenoise(bpy.types.Operator):
         light_types = ["direct", "indirect", "color"]
 
         # For type in light types, call self.denoise
+        for light_type in lights_types:
+            self.denoise()
 
         # Add together direct and indirect
 
@@ -130,7 +146,7 @@ class InstantAdvancedDenoise(bpy.types.Operator):
         for pass_type in pass_types:
             for light_type in light_types:
 
-                code = ("scene.view_layers['View Layer'].use_pass_" + 
+                code = ("self.scene.view_layers['View Layer'].use_pass_" + 
                         pass_type + "_" + light_type + " = True")
 
                 exec(code)
