@@ -95,7 +95,7 @@ class InstantAdvancedDenoise(bpy.types.Operator):
 
         return add_node
 
-    def add_sockets(self, input_socket_one, input_socket_two):
+    def add_sockets(self, input_socket_one, input_socket_two, location_offset=[300, 0]):
         """Expects 2 sockets "input" """
 
         tree = self.scene.node_tree
@@ -111,7 +111,7 @@ class InstantAdvancedDenoise(bpy.types.Operator):
         add_node.blend_type = "ADD"
 
         # Move add node to right of input nodes
-        add_node.location = mean_location + [300, 0]
+        add_node.location = mean_location + location_offset
 
         # Build links between input nodes and add node 
         tree.links.new(input_socket_one, add_node.inputs[1])
@@ -268,7 +268,8 @@ class InstantAdvancedDenoise(bpy.types.Operator):
         # Composite the above with passes that were not denoised
         emission_and_environment = self.add_sockets(
             self.render_layers_node.outputs["Emit"],
-            self.render_layers_node.outputs["Env"])
+            self.render_layers_node.outputs["Env"], 
+            [1200, 0])
 
         final_addition = self.add(
             denoised_final_addition, emission_and_environment)
