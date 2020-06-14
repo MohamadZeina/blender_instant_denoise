@@ -83,6 +83,7 @@ class InstantAdvancedDenoise(bpy.types.Operator):
 
         # Create add node
         add_node = tree.nodes.new(type="CompositorNodeMath")
+        add_node.hide = True
         add_node.operation = "ADD"
 
         # Move add node to right of input nodes
@@ -95,12 +96,27 @@ class InstantAdvancedDenoise(bpy.types.Operator):
         return add_node
 
     def multiply(self, input_one, input_two):
+        """Expects 2 denoise nodes as "input". These only have a single 
+        output, which is why you have to specify socket"""
+
+        tree = self.scene.node_tree
+
+        # Get locations of inputs
+        location_one = np.array(input_one.location)
+        location_two = np.array(input_two.location)
+        mean_location = np.mean([location_one, location_two], axis=0)
 
         # Create multiply node
+        multiply_node = tree.nodes.new(type="CompositorNodeMath")
+        multiply_node.hide = True
+        multiply_node.operation = "MULTIPLY"
 
         # Move multiply node to right of input nodes
+        multiply_node.location = mean_location + [300, 0]
 
-        # Build links between input nodes and multiply node 
+        # Build links between input nodes and add node 
+        tree.links.new(input_one.outputs[0], multiply_node.inputs[0])
+        tree.links.new(input_two.outputs[0], multiply_node.inputs[1])
 
         return multiply_node
 
@@ -165,6 +181,7 @@ class InstantAdvancedDenoise(bpy.types.Operator):
         add_node = self.add(denoise_nodes["Dir"], denoise_nodes["Ind"])
 
         # Multiply the result of adding direct and indirect, with colour
+        multiply_node = self.multiply(add_node, denoise_nodes["Col"])
 
         return
 
