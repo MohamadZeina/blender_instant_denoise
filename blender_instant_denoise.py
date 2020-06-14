@@ -113,16 +113,31 @@ class InstantAdvancedDenoise(bpy.types.Operator):
 
 		return
 
+	def initialise_settings(self, context):
+
+		scene = context.scene
+
+		# Initialise important miscellaneous settings
+        scene.use_nodes = True
+        context.view_layer.cycles.denoising_store_passes = True
+
+		# Enable necessary render layers
+		context.scene.render.use_compositing = True
+
+		# Enable advanced light passes that differentiate this class
+		pass_type = ["diffuse", "glossy", "transmission"]
+		light_types = ["direct", "indirect", "color"]
+
+
+		return
+
     def execute(self, context):
         """Called when blender runs this operator"""
 
         scene = context.scene
 
-        # Initialise important settings
-        scene.use_nodes = True
-        context.view_layer.cycles.denoising_store_passes = True
-        context.scene.render.use_compositing = True
-
+        initialise_settings()
+        
         # Clear any existing nodes
         tree = scene.node_tree
 
