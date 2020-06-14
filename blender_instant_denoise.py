@@ -103,7 +103,7 @@ class InstantAdvancedDenoise(bpy.types.Operator):
         return multiply_node
 
     def denoise(self, input_socket_one, input_socket_two, 
-                input_socket_three):
+                input_socket_three, location_offset=[300, 0]):
         """Input sockets are required, because this affects a node 
         with a large number of output sockets"""
 
@@ -122,7 +122,7 @@ class InstantAdvancedDenoise(bpy.types.Operator):
         denoise_node.hide = True
 
         # Move denoise node to right of the input sockets
-        denoise_node.location = mean_location + [300, 0]
+        denoise_node.location = mean_location + location_offset
 
         # Build links between input sockets and denoise node
         tree.links.new(
@@ -141,12 +141,18 @@ class InstantAdvancedDenoise(bpy.types.Operator):
 
         light_types = ["Dir", "Ind", "Col"]
 
+        light_type_offset = {"Dir": 0, "Ind": -50, "Col": -100}
+        pass_type_offset = {"Diff": 0, "Gloss": -300, "Trans": -600}
+
         # For type in light types, call self.denoise
-        for light_type in light_types:
+        for i, light_type in enumerate(light_types):
+
             socket_one = self.render_layers_node.outputs[pass_type + light_type]
-            socket_two  = self.render_layers_node.outputs['Denoising Normal']
-            socket_three  = self.render_layers_node.outputs['Denoising Albedo']
-            self.denoise(socket_one, socket_two, socket_three)
+            socket_two  = self.render_layers_node.outputs["Denoising Normal"]
+            socket_three  = self.render_layers_node.outputs["Denoising Albedo"]
+            location_offset = [300, light_type_offset[light_type] + pass_type_offset[pass_type]]
+
+            self.denoise(socket_one, socket_two, socket_three, location_offset)
 
         # Add together direct and indirect
 
@@ -201,7 +207,9 @@ class InstantAdvancedDenoise(bpy.types.Operator):
         self.composite_node.location = 2000, 0
 
         # Set up other nodes
-        self.denoise_pass_type()
+        self.denoise_pass_type("Diff")
+        self.denoise_pass_type("Gloss")
+        self.denoise_pass_type("Trans")
 
         # Link new nodes        
         # tree.links.new(
