@@ -82,16 +82,16 @@ class InstantAdvancedDenoise(bpy.types.Operator):
         mean_location = np.mean([location_one, location_two], axis=0)
 
         # Create add node
-        add_node = tree.nodes.new(type="CompositorNodeMath")
+        add_node = tree.nodes.new(type="CompositorNodeMixRGB")
         add_node.hide = True
-        add_node.operation = "ADD"
+        add_node.blend_type = "ADD"
 
         # Move add node to right of input nodes
         add_node.location = mean_location + [300, 0]
 
         # Build links between input nodes and add node 
-        tree.links.new(input_one.outputs[0], add_node.inputs[0])
-        tree.links.new(input_two.outputs[0], add_node.inputs[1])
+        tree.links.new(input_one.outputs[0], add_node.inputs[1])
+        tree.links.new(input_two.outputs[0], add_node.inputs[2])
 
         return add_node
 
@@ -115,8 +115,8 @@ class InstantAdvancedDenoise(bpy.types.Operator):
         multiply_node.location = mean_location + [300, 0]
 
         # Build links between input nodes and add node 
-        tree.links.new(input_one.outputs[0], multiply_node.inputs[0])
-        tree.links.new(input_two.outputs[0], multiply_node.inputs[1])
+        tree.links.new(input_one.outputs[0], multiply_node.inputs[1])
+        tree.links.new(input_two.outputs[0], multiply_node.inputs[2])
 
         return multiply_node
 
