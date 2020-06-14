@@ -133,16 +133,19 @@ class InstantAdvancedDenoise(bpy.types.Operator):
 
         return denoise_node
 
-    def denoise_pass_type(self, pass_type):
+    def denoise_pass_type(self, pass_type="Diff"):
         """ Given a pass type (diffuse, glossy or transmission), this 
         will denoise each light type (direct, indirect and colour), 
         and combine them appropriately"""
 
-        light_types = ["direct", "indirect", "color"]
+        light_types = ["Dir", "Ind", "Col"]
 
         # For type in light types, call self.denoise
-        for light_type in lights_types:
-            self.denoise()
+        for light_type in light_types:
+            socket_one = self.render_layers_node.outputs[pass_type + light_type]
+            socket_two  = self.render_layers_node.outputs['Denoising Normal']
+            socket_three  = self.render_layers_node.outputs['Denoising Albedo']
+            self.denoise(socket_one, socket_two, socket_three)
 
         # Add together direct and indirect
 
@@ -197,15 +200,7 @@ class InstantAdvancedDenoise(bpy.types.Operator):
         self.composite_node.location = 2000, 0
 
         # Set up other nodes
-        socket_one  = self.render_layers_node.outputs['DiffDir']
-        # socket_two  = render_layers_node.outputs['DiffInd']
-        # socket_three  = render_layers_node.outputs['DiffCol']
-        socket_two  = self.render_layers_node.outputs['Denoising Normal']
-        socket_three  = self.render_layers_node.outputs['Denoising Albedo']
-        self.denoise(socket_one, socket_two, socket_three)
-
-        socket_one  = self.render_layers_node.outputs['DiffInd']
-        self.denoise(socket_one, socket_two, socket_three)
+        self.denoise_pass_type()
 
         # Link new nodes        
         # tree.links.new(
