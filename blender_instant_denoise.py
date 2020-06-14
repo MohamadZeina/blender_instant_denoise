@@ -68,7 +68,7 @@ class InstantAdvancedDenoise(bpy.types.Operator):
     bl_label = "Advanced Denoise"
     bl_options = {'REGISTER', 'UNDO'}
 
-    def add(input_one, input_two):
+    def add(self, input_one, input_two):
 
     	# Create add node
 
@@ -78,7 +78,7 @@ class InstantAdvancedDenoise(bpy.types.Operator):
 
     	return add_node
 
-	def multiply(input_one, input_two):
+	def multiply(self, input_one, input_two):
 
 		# Create multiply node
 
@@ -88,7 +88,8 @@ class InstantAdvancedDenoise(bpy.types.Operator):
 
 		return multiply_node
 
-	def denoise(input_socket_one, input_socket_two, input_socket_three):
+	def denoise(self, input_socket_one, input_socket_two, 
+				input_socket_three):
 
 		# Create denoise node
 
@@ -98,7 +99,7 @@ class InstantAdvancedDenoise(bpy.types.Operator):
 
 		return denoise_node
 
-	def denoise_pass_type(pass_type):
+	def denoise_pass_type(self, pass_type):
 		""" Given a pass type (diffuse, glossy or transmission), this 
 		will denoise each light type (direct, indirect and colour), 
 		and combine them appropriately"""
