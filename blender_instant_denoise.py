@@ -126,9 +126,16 @@ class InstantAdvancedDenoise(bpy.types.Operator):
 		context.scene.render.use_compositing = True
 
 		# Enable advanced light passes that differentiate this class
-		pass_type = ["diffuse", "glossy", "transmission"]
+		pass_types = ["diffuse", "glossy", "transmission"]
 		light_types = ["direct", "indirect", "color"]
 
+		for pass_type in pass_types:
+			for light_type in light_types:
+
+				code = ("scene.view_layer['View Layer'].use_pass_" + 
+						pass_type + "_" + light_type + " = True")
+
+				exec(code)
 
 		return
 
