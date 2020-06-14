@@ -79,7 +79,7 @@ class InstantAdvancedDenoise(bpy.types.Operator):
         # Get locations of inputs
         location_one = np.array(input_one.location)
         location_two = np.array(input_two.location)
-        mean_location = np.mean([location_one, location_two])
+        mean_location = np.mean([location_one, location_two], axis=0)
 
         # Create add node
         add_node = tree.nodeassess.new(type="CompositorNodeMath")
@@ -102,14 +102,34 @@ class InstantAdvancedDenoise(bpy.types.Operator):
 
         return multiply_node
 
-    def denoise(self, input_socket_one, input_socket_two, 
+    def denoise(self, input_node, input_socket_one, input_socket_two, 
                 input_socket_three):
+        """Input sockets are required, because this affects a node 
+        with a large number of output sockets"""
+
+        tree = self.scene.node_tree
+
+        # Get locations of inputs
+        location_one = np.array(input_node.location)
+        location_two = np.array(input_node.location)
+        location_three = np.array(input_node.location)
+
+        mean_location = np.mean(
+            [location_one, location_two, location_three], axis=0)
 
         # Create denoise node
+        denoise_node = tree.nodes.new(type="CompositorNodeDenoise")
 
         # Move denoise node to right of the input sockets
+        denoise_node.location = mean_location + [300, 0]
 
         # Build links between input sockets and denoise node
+        tree.links.new(
+            input_socket_one, denoise_node.inputs["Image"])
+        tree.links.new(
+            input_socket_two, denoise_node.inputs["Normal"])
+        tree.links.new(
+            input_socket_three, denoise_node.inputs["Albedo"])
 
         return denoise_node
 
@@ -168,7 +188,7 @@ class InstantAdvancedDenoise(bpy.types.Operator):
         for node in tree.nodes:
             tree.nodes.remove(node)
 
-        # Set up new nodes
+        # Set up input and output nodes
         render_layers_node = tree.nodes.new(type='CompositorNodeRLayers')
         render_layers_node.location = 0, 0
         # denoise_node = tree.nodes.new(type="CompositorNodeDenoise")
@@ -176,9 +196,17 @@ class InstantAdvancedDenoise(bpy.types.Operator):
         composite_node = tree.nodes.new(type='CompositorNodeComposite')
         composite_node.location = 2000, 0
 
+        # Set up other nodes
+        socket_one  = render_layers_node.outputs['DiffDir']
+        # socket_two  = render_layers_node.outputs['DiffInd']
+        # socket_three  = render_layers_node.outputs['DiffCol']
+        socket_two  = render_layers_node.outputs['Denoising Normal']
+        socket_three  = render_layers_node.outputs['Denoising Albedo']
+        self.denoise(render_layers_node, socket_one, socket_two, socket_three)
 
-
-
+        socket_one  = render_layers_node.outputs['DiffInd']
+        self.denoise(render_layers_node, socket_one, socket_two, socket_three)
+        
         # Link new nodes        
         # tree.links.new(
         #     render_layers_node.outputs['Noisy Image'], 
