@@ -62,6 +62,65 @@ class InstantDenoise(bpy.types.Operator):
 
         return {'FINISHED'}
 
+class InstantAdvancedDenoise(bpy.types.Operator):
+    """Apply the new Intel denoiser in a single click."""
+    bl_idname = "object.instantadvanceddenoise"
+    bl_label = "Advanced Denoise"
+    bl_options = {'REGISTER', 'UNDO'}
+
+    def add(input_one, input_two):
+
+    	return add_node
+
+	def multiply(input_one, input_two):
+
+		return multiply_node
+
+	def denoise(input_one, input_two):
+
+		return
+
+    def execute(self, context):
+        """Called when blender runs this operator"""
+
+        scene = context.scene
+
+        # Initialise important settings
+        scene.use_nodes = True
+        context.view_layer.cycles.denoising_store_passes = True
+        context.scene.render.use_compositing = True
+
+        # Clear any existing nodes
+        tree = scene.node_tree
+
+        for node in tree.nodes:
+        	tree.nodes.remove(node)
+
+        # Set up new nodes
+        render_layers_node = tree.nodes.new(type='CompositorNodeRLayers')
+        render_layers_node.location = 0, 0
+        denoise_node = tree.nodes.new(type="CompositorNodeDenoise")
+        denoise_node.location = 300, 0
+        composite_node = tree.nodes.new(type='CompositorNodeComposite')
+        composite_node.location = 600, 0
+
+        # Link new nodes        
+        tree.links.new(
+        	render_layers_node.outputs['Noisy Image'], 
+        	denoise_node.inputs['Image'])
+        tree.links.new(
+        	render_layers_node.outputs['Denoising Albedo'], 
+        	denoise_node.inputs['Albedo'])
+        tree.links.new(
+        	render_layers_node.outputs['Denoising Normal'], 
+        	denoise_node.inputs['Normal'])
+
+        tree.links.new(
+        	denoise_node.outputs['Image'], 
+        	composite_node.inputs['Image'])
+
+        return {'FINISHED'}
+
 
 class InstantDenoisePanel(bpy.types.Panel):
     """The primary panel for Blender AutoFocus"""
