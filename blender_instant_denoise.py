@@ -119,6 +119,7 @@ class InstantAdvancedDenoise(bpy.types.Operator):
 
         # Create denoise node
         denoise_node = tree.nodes.new(type="CompositorNodeDenoise")
+        denoise_node.hide = True
 
         # Move denoise node to right of the input sockets
         denoise_node.location = mean_location + [300, 0]
