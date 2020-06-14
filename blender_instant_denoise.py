@@ -98,6 +98,21 @@ class InstantAdvancedDenoise(bpy.types.Operator):
 
 		return denoise_node
 
+	def denoise_pass_type(pass_type):
+		""" Given a pass type (diffuse, glossy or transmission), this 
+		will denoise each light type (direct, indirect and colour), 
+		and combine them appropriately"""
+
+		light_types = ["direct", "indirect", "color"]
+
+		# For type in light types, call self.denoise
+
+		# Add together direct and indirect
+
+		# Multiply the result of adding direct and indirect, with colour
+
+		return
+
     def execute(self, context):
         """Called when blender runs this operator"""
 
