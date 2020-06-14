@@ -95,6 +95,30 @@ class InstantAdvancedDenoise(bpy.types.Operator):
 
         return add_node
 
+    def add_sockets(self, input_socket_one, input_socket_two):
+        """Expects 2 sockets "input" """
+
+        tree = self.scene.node_tree
+
+        # Get locations of inputs
+        location_one = np.array(self.render_layers_node.location)
+
+        mean_location = location_one
+
+        # Create add node
+        add_node = tree.nodes.new(type="CompositorNodeMixRGB")
+        add_node.hide = True
+        add_node.blend_type = "ADD"
+
+        # Move add node to right of input nodes
+        add_node.location = mean_location + [300, 0]
+
+        # Build links between input nodes and add node 
+        tree.links.new(input_socket_one, add_node.inputs[1])
+        tree.links.new(input_socket_two, add_node.inputs[2])
+
+        return add_node
+
     def multiply(self, input_one, input_two):
         """Expects 2 denoise nodes as "input". These only have a single 
         output, which is why you have to specify socket"""
@@ -129,11 +153,8 @@ class InstantAdvancedDenoise(bpy.types.Operator):
 
         # Get locations of inputs
         location_one = np.array(self.render_layers_node.location)
-        location_two = np.array(self.render_layers_node.location)
-        location_three = np.array(self.render_layers_node.location)
 
-        mean_location = np.mean(
-            [location_one, location_two, location_three], axis=0)
+        mean_location = location_one
 
         # Create denoise node
         denoise_node = tree.nodes.new(type="CompositorNodeDenoise")
@@ -189,12 +210,15 @@ class InstantAdvancedDenoise(bpy.types.Operator):
 
         # Initialise important miscellaneous settings
         self.scene.use_nodes = True
-        self.context.view_layer.cycles.denoising_store_passes = True
 
-        # Enable necessary render layers
         self.context.scene.render.use_compositing = True
 
-        # Enable advanced light passes that differentiate this class
+        # Enable basic life passes
+        self.context.view_layer.cycles.denoising_store_passes = True
+        self.context.scene.view_layers["View Layer"].use_pass_emit = True
+        self.context.scene.view_layers["View Layer"].use_pass_environment = True
+
+        # Enable advanced light passes
         pass_types = ["diffuse", "glossy", "transmission"]
         light_types = ["direct", "indirect", "color"]
 
@@ -238,8 +262,16 @@ class InstantAdvancedDenoise(bpy.types.Operator):
 
         diffuse_and_glossy = self.add(
             diffuse_multiply_node, glossy_multiply_node)
-        final_addition = self.add(
+        denoised_final_addition = self.add(
             diffuse_and_glossy, transmission_multiply_node)
+
+        # Composite the above with passes that were not denoised
+        emission_and_environment = self.add_sockets(
+            self.render_layers_node.outputs["Emit"],
+            self.render_layers_node.outputs["Env"])
+
+        final_addition = self.add(
+            denoised_final_addition, emission_and_environment)
 
         tree.links.new(
             final_addition.outputs[0], 
