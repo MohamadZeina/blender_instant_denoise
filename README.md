@@ -1,6 +1,8 @@
 
 # Blender Instant Denoise
 
+## UPDATE: I hope this plugin has helped you render your scenes faster! However, in recent versions of Blender, this is no longer required :) Blender has some very easy built in ways to enable AI denoising now, which replace the need for this plugin
+
 Enable the incredible Intel AI denoiser in Blender **in a single click**. 
 
 ![Comparison with and without denoising](side_by_side_2.jpg)
